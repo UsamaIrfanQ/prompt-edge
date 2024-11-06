@@ -9,7 +9,7 @@ export default function Logout() {
     const redirectToAuthorize = () => {
         const clientId = '74a0a1d1-63d3-4f18-a9be-54b13e9ba645'; // Your client_id
         const authorizeUrl = 'https://login.microsoftonline.com/cb8d0f5e-295e-44f1-8cab-184ae827c864/oauth2/v2.0/authorize';
-        const redirectUri = encodeURIComponent('https://red-island-0a4ba061e.5.azurestaticapps.net/auth/callback'); // Replace with your redirect URI
+        const redirectUri = encodeURIComponent('https://delightful-island-0aae4dc0f.5.azurestaticapps.net//auth/callback'); // Replace with your redirect URI
         const scope = encodeURIComponent('openid profile offline_access https://graph.microsoft.com/.default'); // Example scope
         const responseType = 'code'; // Authorization code flow
         const state = encodeURIComponent('abc123'); // Optional but recommended for CSRF protection
