@@ -95,13 +95,14 @@ export const globalStyles = {
       body: {
         overflowX: 'hidden',
         bg: mode('#fdfeff', 'navy.900')(props),
-        fontFamily: 'Plus Jakarta Sans',
+        fontFamily: 'Segoe UI',
+        fontWeight: 400
       },
       input: {
         color: 'gray.700',
       },
       html: {
-        fontFamily: 'Plus Jakarta Sans',
+        fontFamily: 'Segoe UI',
       },
     }),
   },

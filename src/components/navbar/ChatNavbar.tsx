@@ -1,5 +1,4 @@
 import React from 'react';
-
 // ChatHeader.tsx
 import {
   Box,
@@ -26,7 +25,6 @@ import { IoMenu } from 'react-icons/io5';
 import Sidebar, { SidebarResponsive } from '../sidebar/Sidebar';
 import routes from '@/routes';
 import Link from 'next/link';
-
 const ChatNavbar = () => {
   const { isOpen, onOpen, onClose } = useDisclosure();
   let menuBg = useColorModeValue('white', 'navy.800');
@@ -56,28 +54,25 @@ const ChatNavbar = () => {
           icon={<IoMenu />}
           size="lg"
           variant="ghost"
-          _hover={{ bg: 'rgba(0, 0, 0, 0.1)' }}
+          _hover={{ bg: 'none', color: 'blue.400' }}
           color="gray.600"
           onClick={onOpen}
           display={{ base: 'none', xl: 'block' }}
+          minW="unset"
         />
         <Link href="/">
-          <Text fontWeight="bold" fontSize="lg" ml={2} color="gray.800">
+          <Text fontWeight="bold" fontSize="lg" ml={{md:8, sm:4}} color="gray.800">
             PromptEdge D365
           </Text>
         </Link>
-
         <Spacer />
-
         <Flex
           align="center"
-          bg="whiteAlpha.800"
-          p={1}
-          borderRadius="md"
           boxShadow="sm"
           maxW="300px"
           w="100%"
           display={{ base: 'none', md: 'flex' }}
+          h={'40px'}
         >
           <IconButton
             aria-label="Search"
@@ -85,18 +80,23 @@ const ChatNavbar = () => {
             variant="ghost"
             color="gray.600"
             size="sm"
+            position={"absolute"}
+            zIndex={'1'}
+            w={'40px'}
           />
           <Input
             placeholder="Search"
-            variant="unstyled"
-            ml={2}
+            variant="filled"
             fontSize="sm"
             color="gray.700"
+            h="100%"
+            borderRadius="md"
+            pl={'40px'}
+            _focus={{bg: 'white', border: 'none', outline: 'none'}}
+            _focusVisible={{bg: 'white', border: 'none'}}
           />
         </Flex>
-
         <Spacer />
-
         <IconButton
           aria-label="Add"
           icon={<FiPlus />}
@@ -104,6 +104,7 @@ const ChatNavbar = () => {
           color="gray.600"
           _hover={{ bg: 'rgba(0, 0, 0, 0.1)' }}
           size="lg"
+          mr={{ base: '0.5rem' }}
         />
         <Menu>
           <MenuButton p="0px" style={{ position: 'relative' }}>
@@ -187,5 +188,4 @@ const ChatNavbar = () => {
     </>
   );
 };
-
 export default ChatNavbar;

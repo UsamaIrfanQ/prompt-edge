@@ -1,10 +1,19 @@
 // app/auth/callback/page.tsx
-"use client";
+'use client';
 
 import { useEffect, useState, Suspense } from 'react';
 import { useRouter } from 'next/navigation';
 import { useSearchParams } from 'next/navigation';
-import { Box, Text, Spinner, Modal, ModalOverlay, ModalContent, ModalBody, useDisclosure } from '@chakra-ui/react';
+import {
+  Box,
+  Text,
+  Spinner,
+  Modal,
+  ModalOverlay,
+  ModalContent,
+  ModalBody,
+  useDisclosure,
+} from '@chakra-ui/react';
 
 const CallbackPage = () => {
   const router = useRouter();
@@ -30,28 +39,29 @@ const CallbackPage = () => {
   const sendCodeToAPIAndStoreUserId = async (code: string) => {
     try {
       // Example API call to send the code and get userId
-      const response = await fetch('/api/getUserId', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ code }), // Send the stored code to the backend API
-      });
+      localStorage.setItem('user_id', code); // Store the userId in localStorage
+      // const response = await fetch('/api/getUserId', {
+      //   method: 'POST',
+      //   headers: {
+      //     'Content-Type': 'application/json',
+      //   },
+      //   body: JSON.stringify({ code }), // Send the stored code to the backend API
+      // });
 
-      if (response.ok) {
-        const responseData = await response.json(); // Get the entire response data
-        console.log(responseData); // Log the response data
-      
-        // Directly access userId from the response
-        const userId = responseData.userId; // Access userId directly
-      
-        // Ensure userId is a string before storing
-        localStorage.setItem('user_id', userId); // Store the userId in localStorage
-        // Redirect the user to the main chat page
-        router.push('/');
-      } else {
-        console.error('Error fetching userId');
-      }
+      // if (response.ok) {
+      //   const responseData = await response.json(); // Get the entire response data
+      //   console.log(responseData); // Log the response data
+
+      //   // Directly access userId from the response
+      //   const userId = responseData.userId; // Access userId directly
+
+      //   // Ensure userId is a string before storing
+      //   localStorage.setItem('user_id', userId); // Store the userId in localStorage
+      //   // Redirect the user to the main chat page
+      //   router.push('/');
+      // } else {
+      //   console.error('Error fetching userId');
+      // }
     } catch (error) {
       console.error('Error in API request', error);
     } finally {
@@ -62,8 +72,16 @@ const CallbackPage = () => {
 
   return (
     <Suspense fallback={<LoadingComponent />}>
-      <Box display="flex" flexDirection="column" justifyContent="center" alignItems="center" height="100vh">
-        <Text fontSize="xl" mb={4}>Redirecting...</Text>
+      <Box
+        display="flex"
+        flexDirection="column"
+        justifyContent="center"
+        alignItems="center"
+        height="100vh"
+      >
+        <Text fontSize="xl" mb={4}>
+          Redirecting...
+        </Text>
         <Modal isOpen={isOpen} onClose={onClose} isCentered>
           <ModalOverlay />
           <ModalContent>
@@ -79,7 +97,13 @@ const CallbackPage = () => {
 };
 
 const LoadingComponent = () => (
-  <Box display="flex" flexDirection="column" justifyContent="center" alignItems="center" height="100vh">
+  <Box
+    display="flex"
+    flexDirection="column"
+    justifyContent="center"
+    alignItems="center"
+    height="100vh"
+  >
     <Spinner size="xl" />
     <Text>Loading...</Text>
   </Box>

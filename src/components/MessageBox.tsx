@@ -30,6 +30,7 @@ import {
   useBreakpointValue,
 } from '@chakra-ui/react';
 import Card from '@/components/card/Card';
+import RMstyle from '../styles/markdown-styles.module.css';
 import { FaCopy, FaInfoCircle } from 'react-icons/fa';
 import { FiChevronLeft, FiChevronRight, FiRefreshCw } from 'react-icons/fi';
 import {
@@ -369,37 +370,18 @@ const MarkdownView: React.FC<MarkdownView> = ({ content }) => {
   return (
     <Box overflowY="auto">
       <ReactMarkdown
-        className="font-medium"
+        className={RMstyle.reactMarkDown}
         components={{
           p: ({ node, ...props }) => (
             <p style={{ marginBottom: '1em' }} {...props} /> // Adds space between paragraph and next element
           ),
           ul: ({ node, ...props }) => (
-            <ul
-              style={{
-                paddingLeft: '2em',
-                marginLeft: '1em',
-                marginTop: '1em',
-              }}
-              {...props}
-            /> // Adds space before the bullet list
+            <ul {...props} /> // Adds space before the bullet list
           ),
           ol: ({ node, ...props }) => (
-            <ol
-              style={{
-                paddingLeft: '2em',
-                marginLeft: '1em',
-                marginTop: '1em',
-              }}
-              {...props}
-            /> // Adds space before the numbered list
+            <ol {...props} /> // Adds space before the numbered list
           ),
-          li: ({ node, ...props }) => (
-            <li
-              style={{ paddingLeft: '1em', marginBottom: '0.5em' }}
-              {...props}
-            />
-          ),
+          li: ({ node, ...props }) => <li {...props} />,
         }}
       >
         {content}
@@ -610,11 +592,12 @@ export default function MessageBox({ output, selectedPill }: MessageBoxProps) {
 
   return (
     <>
-      <Flex direction="column" alignItems="end" w="100%">
+      <Flex direction="column" alignItems="end" w="100%" h="100%">
         <Card
           display={!!output ? 'flex' : 'none'}
           color={textColor}
           minH="300px"
+          h="100%"
           fontSize={{ base: 'sm', md: 'md' }}
           lineHeight={{ base: '24px', md: '26px' }}
           fontWeight="500"
@@ -639,47 +622,25 @@ export default function MessageBox({ output, selectedPill }: MessageBoxProps) {
                   background="blue.300"
                   color="white"
                   style={{
-                    padding: '10px',
-                    borderRadius: '6px',
+                    padding: '10px 20px',
+                    borderRadius: '30px',
                     textAlign: 'left', // Text always left-aligned
                   }}
                 >
                   {/* <Image src="/img/prompt-edge-logo.svg" alt="Logo" w="20px" mb="20px" maxWidth="20px" /> */}
                   <ReactMarkdown
-                    className="font-medium"
+                    className={RMstyle.reactMarkDown}
                     components={{
                       p: ({ node, ...props }) => (
                         <p {...props} /> // Adds space between paragraph and next element
                       ),
                       ul: ({ node, ...props }) => (
-                        <ul
-                          style={{
-                            paddingLeft: '2em',
-                            marginLeft: '1em',
-                            marginTop: '1em',
-                          }}
-                          {...props}
-                        /> // Adds space before the bullet list
+                        <ul {...props} /> // Adds space before the bullet list
                       ),
                       ol: ({ node, ...props }) => (
-                        <ol
-                          style={{
-                            paddingLeft: '2em',
-                            marginLeft: '1em',
-                            marginTop: '1em',
-                          }}
-                          {...props}
-                        /> // Adds space before the numbered list
+                        <ol {...props} /> // Adds space before the numbered list
                       ),
-                      li: ({ node, ...props }) => (
-                        <li
-                          style={{
-                            paddingLeft: '1em',
-                            marginBottom: '0.5em',
-                          }}
-                          {...props}
-                        />
-                      ),
+                      li: ({ node, ...props }) => <li {...props} />,
                     }}
                   >
                     {output?.input ?? ''}
@@ -705,74 +666,59 @@ export default function MessageBox({ output, selectedPill }: MessageBoxProps) {
                       background="blue.300"
                       color="white"
                       style={{
-                        padding: '10px',
-                        borderRadius: '6px',
+                        padding: '10px 20px',
+                        borderRadius: '50px',
                         textAlign: 'left', // Text always left-aligned
                       }}
                     >
                       {/* <Image src="/img/prompt-edge-logo.svg" alt="Logo" w="20px" mb="20px" maxWidth="20px" /> */}
                       <ReactMarkdown
-                        className="font-medium"
+                        className={RMstyle.reactMarkDown}
                         components={{
                           p: ({ node, ...props }) => (
                             <p style={{ lineHeight: '1.5em' }} {...props} /> // Adds space between paragraph and next element
                           ),
                           ul: ({ node, ...props }) => (
-                            <ul
-                              style={{
-                                paddingLeft: '2em',
-                                marginLeft: '1em',
-                                marginTop: '1em',
-                              }}
-                              {...props}
-                            /> // Adds space before the bullet list
+                            <ul {...props} /> // Adds space before the bullet list
                           ),
                           ol: ({ node, ...props }) => (
-                            <ol
-                              style={{
-                                paddingLeft: '2em',
-                                marginLeft: '1em',
-                                marginTop: '1em',
-                              }}
-                              {...props}
-                            /> // Adds space before the numbered list
+                            <ol {...props} /> // Adds space before the numbered list
                           ),
-                          li: ({ node, ...props }) => (
-                            <li
-                              style={{
-                                paddingLeft: '1em',
-                                marginBottom: '0.5em',
-                              }}
-                              {...props}
-                            />
-                          ),
+                          li: ({ node, ...props }) => <li {...props} />,
                         }}
                       >
                         {output?.input ?? ''}
                       </ReactMarkdown>
                     </Box>
                   </div>
-                  <div
+                  <Box
                     style={{
                       marginBottom: '10px',
                       display: 'flex',
-                      flexDirection: 'column',
                       alignSelf: 'flex-start', // User messages aligned to the right
                       borderRadius: '6px',
-                      backgroundColor: '#fff',
                       maxWidth: '85%',
                     }}
                   >
-                    <Image
-                      src="/img/prompt-edge-logo.svg"
-                      alt="Logo"
-                      w="30px"
-                      mb="10px"
-                      maxWidth="30px"
-                    />
-                    <div
+                    <Box
+                      backgroundColor="white"
+                      w="35px"
+                      display="flex"
+                      alignItems="center"
+                      justifyContent="center"
+                      borderRadius="45px"
+                      h="35px"
+                    >
+                      <Image
+                        src="/img/prompt-edge-logo.svg"
+                        alt="Logo"
+                        w="30px"
+                        maxWidth="30px"
+                      />
+                    </Box>
+                    <Box
                       style={{
-                        padding: '10px',
+                        padding: '0 10px',
                         borderRadius: '6px',
                         maxWidth: '70%',
                         textAlign: 'left', // Text always left-aligned
@@ -781,46 +727,24 @@ export default function MessageBox({ output, selectedPill }: MessageBoxProps) {
                     >
                       {/* <Image src="/img/prompt-edge-logo.svg" alt="Logo" w="20px" mb="20px" maxWidth="20px" /> */}
                       <ReactMarkdown
-                        className="font-medium"
+                        className={RMstyle.reactMarkDown}
                         components={{
                           p: ({ node, ...props }) => (
                             <p {...props} /> // Adds space between paragraph and next element
                           ),
                           ul: ({ node, ...props }) => (
-                            <ul
-                              style={{
-                                paddingLeft: '2em',
-                                marginLeft: '1em',
-                                marginTop: '1em',
-                              }}
-                              {...props}
-                            /> // Adds space before the bullet list
+                            <ul {...props} /> // Adds space before the bullet list
                           ),
                           ol: ({ node, ...props }) => (
-                            <ol
-                              style={{
-                                paddingLeft: '2em',
-                                marginLeft: '1em',
-                                marginTop: '1em',
-                              }}
-                              {...props}
-                            /> // Adds space before the numbered list
+                            <ol {...props} /> // Adds space before the numbered list
                           ),
-                          li: ({ node, ...props }) => (
-                            <li
-                              style={{
-                                paddingLeft: '1em',
-                                marginBottom: '0.5em',
-                              }}
-                              {...props}
-                            />
-                          ),
+                          li: ({ node, ...props }) => <li {...props} />,
                         }}
                       >
                         {output?.response?.[0]?.content ?? ''}
                       </ReactMarkdown>
-                    </div>
-                  </div>
+                    </Box>
+                  </Box>
                 </Flex>
               )}
               <div ref={bottomRef} />

@@ -1,6 +1,5 @@
 'use client';
 /*eslint-disable*/
-
 import MessageBoxChat from '@/components/MessageBox';
 import { ChatBody, OpenAIModel, PILL_VIEWS } from '@/types/types';
 import {
@@ -18,6 +17,7 @@ import {
 } from '@chakra-ui/react';
 import { useEffect, useState } from 'react';
 import { MdAutoAwesome } from 'react-icons/md';
+import { FaPaperPlane } from 'react-icons/fa';
 import { AttachmentIcon } from '@chakra-ui/icons';
 import { useSession } from '@/context/SessionContext';
 import { useParams, useRouter } from 'next/navigation'; // Import the useRouter hook
@@ -52,7 +52,7 @@ const PillsRow: React.FC<PillRowProps> = ({ pills, onSelect }) => {
   return (
     <Box
       display="flex"
-      mb={4}
+      mb={2}
       alignSelf="end"
       alignItems="center"
       justifyContent="space-between"
@@ -104,11 +104,9 @@ export default function Chat() {
   const [loading, setLoading] = useState<boolean>(false);
   const toast = useToast(); // Initialize the toast hook
   const [isLoading, setIsLoading] = useState(false); // State to control modal visibility
-
   let navbarPosition = 'fixed' as const;
   let navbarFilter = 'none';
   let navbarBackdrop = 'blur(20px)';
-
   // API Key
   // const [apiKey, setApiKey] = useState<string>(apiKeyApp);
   const borderColor = useColorModeValue('gray.200', 'whiteAlpha.200');
@@ -119,7 +117,6 @@ export default function Chat() {
     { color: 'whiteAlpha.600' },
   );
   const [user_id, setUserId] = useState<string | null>(null);
-
   useEffect(() => {
     const hasRefreshed = localStorage.getItem('hasRefreshed');
     if (!hasRefreshed) {
@@ -129,7 +126,6 @@ export default function Chat() {
     // This ensures it only runs on the client side
     if (typeof window !== 'undefined') {
       const storedUserId = localStorage.getItem('user_id');
-
       if (!storedUserId) {
         router.push('/logout'); // Redirect to the logout page
       } else {
@@ -137,12 +133,10 @@ export default function Chat() {
       }
     }
   }, [router]);
-
   const handleFileUpload = async (
     event: React.ChangeEvent<HTMLInputElement>,
   ) => {
     const file = event.target.files?.[0];
-
     if (!file) {
       toast({
         title: 'No file selected.',
@@ -152,10 +146,8 @@ export default function Chat() {
       });
       return;
     }
-
     const formData = new FormData();
     formData.append('file', file);
-
     try {
       setIsLoading(true); // Show loading modal
       const response = await fetch('/api/uploadFile', {
@@ -165,9 +157,7 @@ export default function Chat() {
         },
         body: formData, // send the file in FormData format
       });
-
       setIsLoading(false); // Hide loading modal after response
-
       if (!response.ok) {
         toast({
           title: 'Error uploading file.',
@@ -177,7 +167,6 @@ export default function Chat() {
         });
         return;
       }
-
       const data = await response.json();
       toast({
         title: 'File uploaded successfully.',
@@ -201,17 +190,14 @@ export default function Chat() {
       });
     }
   };
-
   const handleTranslate = async () => {
     setInputOnSubmit(inputCode);
     setInputCode('');
     const maxCodeLength = model === 'gpt-4o' ? 700 : 700;
-
     if (!inputCode) {
       alert('Please enter your message.');
       return;
     }
-
     if (inputCode.length > maxCodeLength) {
       alert(
         `Please enter code less than ${maxCodeLength} characters. You are currently at ${inputCode.length} characters.`,
@@ -228,7 +214,6 @@ export default function Chat() {
       );
       return;
     }
-
     const body: StartChatRequest = {
       user_input: inputCode,
       chat_id: chat_id,
@@ -256,20 +241,16 @@ export default function Chat() {
     }
     setLoading(false);
   };
-
   const handleChange = (Event: any) => {
     setInputCode(Event.target.value);
   };
-
   useEffect(() => {
     const handleKeyDown = (event: KeyboardEvent) => {
       if (event.keyCode === 13) {
         handleTranslate();
       }
     };
-
     document.addEventListener('keydown', handleKeyDown);
-
     return () => {
       document.removeEventListener('keydown', handleKeyDown);
     };
@@ -286,7 +267,9 @@ export default function Chat() {
   return (
     <Flex
       w="100%"
+      h="100%"
       direction="column"
+      justifyContent={outputData ? '' : 'center'}
       position="relative"
       borderRadius="12px"
       bg="rgba(255, 255, 255, 0.5)"
@@ -297,10 +280,10 @@ export default function Chat() {
         alignItems="center"
         mx="auto"
         overflowY="hidden"
-        h="100%"
+        h={outputData ? '100%' : ''}
         w={{ base: '100%', md: '100%', xl: '100%' }}
-        minH={{ base: 'calc(100vh - 108px)', lg: '75vh' }}
-        maxH={{ base: 'calc(100vh - 108px)', lg: '80vh' }}
+        // minH={{ base: 'calc(100vh - 108px)', lg: '75vh' }}
+        // maxH={{ base: 'calc(100vh - 108px)', lg: '80vh' }}
       >
         {/* Model Change */}
         <Flex
@@ -317,6 +300,7 @@ export default function Chat() {
           mx="auto"
           display={!!outputData ? 'none' : 'flex'} // Check if history is available
           mb={'auto'}
+          pb={'2rem'}
         >
           <Image
             src="/img/copilot-logo.png"
@@ -332,42 +316,65 @@ export default function Chat() {
         <Flex
           direction="column"
           w="100%"
-          h="100%"
+          h={outputData ? 'calc(100% - 52px)' : ''}
           mx="auto"
           display={!!outputData ? 'flex' : 'none'} // Check if history is available
           mb={'auto'}
           overflowY="auto"
         >
-          <Flex w="100%" paddingX={{ base: '8px', lg: '20px' }}>
+          <Flex w="100%" h="100%" paddingX={{ base: '8px', lg: '20px' }}>
             <MessageBoxChat selectedPill={selectedPill} output={outputData} />
           </Flex>
         </Flex>
 
-        <Flex flexDirection="column" w="100%">
+        <Flex flexDirection="column" w="100%" alignItems="center">
           {!!outputData && (
             <PillsRow pills={pillsList} onSelect={handlePillSelect} />
           )}
           <Flex
-            justifySelf="flex-end"
-            alignSelf="center"
-            zIndex="1000"
-            pb={{ base: 4, md: 6 }} // Responsive padding bottom
-            borderRadius={{ base: '0px', md: 10 }} // No radius on mobile, but radius on larger screens
-            flexDirection={{ base: 'column', md: 'row' }}
+            alignItems="center"
             w={{ base: '100%', md: '80%', xl: '62%' }}
+            justifySelf="flex-end"
+            bg="white"
+            zIndex="1000"
+            p={{ base: 2, md: 2 }}
+            mb={{ base: 4, md: 6 }}
+            borderRadius={{ base: '0px', md: '45px', xl: '45px' }}
+            maxH={'52px'}
           >
-            <Input
-              flex="1"
-              minH={{ base: '48px', md: '56px' }}
-              h="100%"
-              border="1px solid"
-              borderColor={borderColor}
-              bg="white"
+            <Button
+              as="label"
+              htmlFor="file-upload"
+              variant="ghost"
+              me="5px"
               borderRadius="45px"
-              p={{ base: '10px 15px', md: '15px 20px' }} // Smaller padding on mobile
+              _hover={{
+                bg: 'white',
+              }}
+              h="42px"
+              w="52px"
+              display="flex"
+              alignItems="center"
+              justifyContent="center"
+            >
+              <Icon as={AttachmentIcon} w={5} h={5} color="gray.800" />
+              <Input
+                id="file-upload"
+                type="file"
+                display="none"
+                onChange={handleFileUpload}
+              />
+            </Button>
+            <Input
+              h="100%"
+              bg="white"
+              p={{ base: '10px 15px 10px 5px', md: '12px 20px 12px 5px' }} // Smaller padding on mobile
+              me="10px"
+              border="none"
               fontSize={{ base: 'xs', md: 'sm' }} // Smaller font size on mobile
               fontWeight="500"
               _focus={{ borderColor: 'none' }}
+              _focusVisible={{ borderColor: 'none' }}
               color={inputColor}
               _placeholder={placeholderColor}
               placeholder="Type your message here..."
@@ -375,49 +382,24 @@ export default function Chat() {
               value={inputCode}
             />
 
-            <Flex alignItems="center">
-              <Button
-                as="label"
-                htmlFor="file-upload"
-                variant="ghost"
-                me="10px"
-                borderRadius="45px"
-                _hover={{
-                  bg: 'white',
-                }}
-                h="54px"
-                w="54px"
-                minW="54px"
-                display="flex"
-                alignItems="center"
-                justifyContent="center"
-              >
-                <Icon as={AttachmentIcon} w={6} h={6} color="gray.800" />
-                <Input
-                  id="file-upload"
-                  type="file"
-                  display="none"
-                  onChange={handleFileUpload} // handle file input change
-                />
-              </Button>
-
-              <Button
-                flex="1"
-                textColor={'white'}
-                py={{ base: '12px', md: '20px' }} // Reduced padding for mobile
-                px={{ base: '8px', md: '16px' }} // Reduced horizontal padding for mobile
-                fontSize={{ base: 'xs', md: 'sm' }} // Smaller font size on mobile
-                borderRadius="45px"
-                w={{ base: '100px', md: '160px', xl: '210px' }} // Reduced width on mobile
-                h={{ base: '44px', md: '54px' }} // Reduced height on mobile
-                onClick={handleTranslate}
-                isLoading={loading ? true : false}
-                bg={'#1c9cf4'}
-                _hover={{ bg: '#0b73fc' }}
-              >
-                Submit
-              </Button>
-            </Flex>
+            <Button
+              py={{ base: '8px', md: '10px' }}
+              px={{ base: '8px', md: '10px' }}
+              fontSize={{ base: 'xs', md: 'sm' }}
+              borderRadius="45px"
+              ms="auto"
+              w={{ base: '41px', md: '45px' }}
+              h={{ base: '38px', md: '42px' }}
+              mr={{ base: '25px', md: '0px' }}
+              onClick={handleTranslate}
+              isLoading={loading ? true : false}
+              bg={'#1c9cf4'}
+              textColor={'white'}
+              _hover={{ bg: '#0b73fc' }}
+              disabled={inputCode.length > 0 ? false : true}
+            >
+              <FaPaperPlane size={14} />
+            </Button>
           </Flex>
         </Flex>
       </Flex>

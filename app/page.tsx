@@ -14,6 +14,7 @@ import {
 } from '@chakra-ui/react';
 import { useEffect, useState } from 'react';
 import { MdAutoAwesome } from 'react-icons/md';
+import { FaPaperPlane } from "react-icons/fa6";
 import { AttachmentIcon } from '@chakra-ui/icons';
 import { useSession } from '@/context/SessionContext';
 import { useRouter } from 'next/navigation';
@@ -254,28 +255,51 @@ export default function Chat() {
         </Flex>
         {/* Chat Input */}
         <Flex
+          alignItems="center"
           position="fixed"
           bottom="0"
-          w={{ base: '100%', md: '80%', xl: '62%' }} // Responsive width
+          w={{ base: '100%', md: '80%', xl: '62%' }}
           justifySelf="flex-end"
-          // bg="white"
+          bg="white"
           zIndex="1000"
-          pb={{ base: 4, md: 6, xl: 10 }} // Responsive padding bottom
-          borderRadius={{ base: '0px', md: 10 }} // No radius on mobile, but radius on larger screens
-          // maxW={{ base: '75vh', md: '880px', xl: '860px', '2xl': '1000px' }}
-        >
+          p={{ md: 2}}
+          mb={{ base: 4, md: 6 }}
+          borderRadius={{ base: '0px', md: '45px', xl: "45px" }}
+          maxH="52px"
+        > 
+        <Button
+            as="label"
+            htmlFor="file-upload"
+            variant="ghost"
+            me="5px"
+            borderRadius="45px"
+            _hover={{
+              bg: 'white',
+            }}
+            h="42px"
+            w="52px"
+            display="flex"
+            alignItems="center"
+            justifyContent="center"
+          >
+            <Icon as={AttachmentIcon} w={5} h={5} color="gray.800" />
+            <Input
+              id="file-upload"
+              type="file"
+              display="none"
+              onChange={handleFileUpload} // handle file input change
+            />
+          </Button>
           <Input
-            minH="54px"
             h="100%"
             bg="white"
-            border="1px solid"
-            borderColor={borderColor}
-            borderRadius="45px"
-            p={{ base: '10px 15px', md: '15px 20px' }} // Smaller padding on mobile
+            p={{ base: '10px 15px 10px 5px', md: '12px 20px 12px 5px' }} // Smaller padding on mobile
             me="10px"
-            fontSize={{ base: 'xs', md: 'sm' }} // Smaller font size on mobile
+            border='none'
+            fontSize={{ base: 'xs', md: 'sm' }}        // Smaller font size on mobile
             fontWeight="500"
             _focus={{ borderColor: 'none' }}
+            _focusVisible={{borderColor: 'none'}}
             color={inputColor}
             _placeholder={placeholderColor}
             placeholder="Type your message here..."
@@ -284,55 +308,21 @@ export default function Chat() {
           />
 
           <Button
-            as="label"
-            htmlFor="file-upload"
-            variant="ghost"
-            me="10px"
-            borderRadius="45px"
-            _hover={{
-              bg: 'white',
-            }}
-            h="54px"
-            w="54px"
-            minW="54px"
-            display="flex"
-            alignItems="center"
-            justifyContent="center"
-          >
-            <Icon as={AttachmentIcon} w={6} h={6} color="gray.800" />
-            <Input
-              id="file-upload"
-              type="file"
-              display="none"
-              onChange={handleFileUpload} // handle file input change
-            />
-          </Button>
-
-          <Button
-            // bg={'#1c9cf4'}
-            // textColor={'white'}
-            py={{ base: '12px', md: '20px' }} // Reduced padding for mobile
-            px={{ base: '8px', md: '16px' }} // Reduced horizontal padding for mobile
+            py={{ base: '8px', md: '10px' }} // Reduced padding for mobile
+            px={{ base: '8px', md: '10px' }}  // Reduced horizontal padding for mobile
             fontSize={{ base: 'xs', md: 'sm' }} // Smaller font size on mobile
             borderRadius="45px"
             ms="auto"
-            w={{ base: '100px', md: '160px', xl: '210px' }} // Reduced width on mobile
-            h={{ base: '44px', md: '54px' }} // Reduced height on mobile
-            mr={{ base: '25px', md: '0px' }} // Padding right for mobile
-            // _hover={{
-            //   boxShadow: '0px 21px 27px -10px rgba(96, 60, 255, 0.48) !important',
-            //   bg: 'linear-gradient(15.46deg, #4A25E1 26.3%, #7B5AFF 86.4%) !important',
-            //   _disabled: {
-            //     bg: 'linear-gradient(15.46deg, #4A25E1 26.3%, #7B5AFF 86.4%)',
-            //   },
-            // }}
+            w={{ base: '41px', md: '45px' }} // Reduced width on mobile
+            h={{ base: '38px', md: '42px' }}  // Reduced height on mobile
+            mr={{ base: '25px', md: '0px' }}  // Padding right for mobile
             onClick={handleTranslate}
             isLoading={loading ? true : false}
             bg={'#1c9cf4'}
             textColor={'white'}
             _hover={{ bg: '#0b73fc' }}
           >
-            Submit
+            <FaPaperPlane size={14}/>
           </Button>
         </Flex>
         <Flex

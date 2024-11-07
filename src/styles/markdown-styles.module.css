@@ -1,0 +1,26 @@
+.reactMarkDown {
+  font-weight: 400;
+}
+.reactMarkDown ul {
+  font-weight: 400;
+  padding-left: 2em;
+  margin-left: 1em;
+  margin-top: 1em;
+}
+
+.reactMarkDown ol {
+  font-weight: 400;
+  padding-left: 2em;
+  margin-left: 1em;
+  margin-top: 1em;
+}
+
+.reactMarkDown ul li {
+  padding-left: 1em;
+  margin-bottom: 0.5em;
+  font-weight: 400;
+  text-align: -webkit-match-parent;
+}
+.reactMarkDown p {
+  font-weight: 400;
+}

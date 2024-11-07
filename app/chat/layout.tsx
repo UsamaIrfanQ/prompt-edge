@@ -37,7 +37,7 @@ export default function RootLayout({ children }: { children: ReactNode }) {
       justifyContent="center"
       alignItems="center"
       h="100vh"
-      padding={{ base: '0px', md: '50px' }}
+      padding={{ base: '0px', md: '30px 50px' }}
       bg="radial-gradient(farthest-side at top left, rgba(249, 120, 147, 0.8), transparent),
               radial-gradient(farthest-side at bottom left, rgba(249, 120, 147, 0.6), transparent),
               radial-gradient(farthest-side at top right, rgba(249, 225, 175, 1), transparent),
@@ -50,8 +50,7 @@ export default function RootLayout({ children }: { children: ReactNode }) {
           position="absolute"
           left="50%"
           top="50%"
-          transform="translate(-50%, -50%)"
-          w={{ base: '90%', md: '80%', lg: '60%' }}
+          transform="translate(-50%, -50%) scale(0.7)"
           mb="20px"
         />
       </Box>
@@ -61,7 +60,7 @@ export default function RootLayout({ children }: { children: ReactNode }) {
         borderRadius="12px"
         overflow="auto"
         position="relative"
-        h={{ base: '100%', md: "auto" }}
+        h={{ base: '100%', md: '100%' }}
         w={{ base: '100%', md: '95%', lg: '90%' }}
         transition="all 0.33s cubic-bezier(0.685, 0.0473, 0.346, 1)"
         transitionDuration=".2s, .2s, .35s"
@@ -75,7 +74,7 @@ export default function RootLayout({ children }: { children: ReactNode }) {
         // brandText={getActiveRoute(routes, pathname)}
         // secondary={getActiveNavbar(routes, pathname)}
         />
-        <Box mx="auto" p={{ base: '8px', md: '20px' }}>
+        <Box h={{base: 'calc(100% - 64px)'}} mx="auto" p={{ base: '8px', md: '20px' }}>
           {children}
         </Box>
       </Box>
