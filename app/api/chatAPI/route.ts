@@ -7,6 +7,8 @@ export async function POST(req: Request): Promise<Response> {
   try {
     const { id, user_id, user_input } = (await req.json()) as StartChatRequest;
 
+    console.log('DATA', id, user_id, user_input);
+
     const response = await AzureOpenAIStream(user_input, id, user_id);
 
     return new Response(JSON.stringify(response), { status: 200 });
@@ -32,12 +34,14 @@ async function AzureOpenAIStream(
       body: JSON.stringify({
         user_id: user_id,
         id: id,
+        chat_id: id,
         user_input,
       }),
     },
   );
 
   if (!response.ok) {
+    console.log('RESPONSE', response);
     throw new Error(
       `Azure OpenAI API request failed with status ${response.status}: ${response.statusText}`,
     );

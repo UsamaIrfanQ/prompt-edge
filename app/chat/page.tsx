@@ -2,11 +2,14 @@
 /*eslint-disable*/
 
 import MessageBoxChat from '@/components/MessageBox';
-import { ChatBody, OpenAIModel } from '@/types/types';
+import { ChatBody, OpenAIModel, PILL_VIEWS } from '@/types/types';
 import {
+  Box,
   Button,
   Flex,
+  HStack,
   Icon,
+  IconButton,
   Image,
   Input,
   Text,
@@ -24,11 +27,70 @@ import { StartChatRequest } from '@/types/Request/Chat';
 import chatClient from '@/service/chat';
 import { StartConversationResponse } from '@/types/Response/Chat';
 import { staticCompanyResponse } from '@/utils/static';
+import { FiRefreshCw } from 'react-icons/fi';
+
+type Pill = {
+  title: string;
+  value: PILL_VIEWS;
+};
+
+interface PillRowProps {
+  pills: Pill[];
+  onSelect: (value: PILL_VIEWS) => void;
+}
+
+const pillsList = [
+  { title: 'Mizkan Holdings Co., Ltd.', value: PILL_VIEWS.COMPANY_VIEW },
+  { title: 'Data Migration Scope.', value: PILL_VIEWS.DATA_MIGRATION },
+  { title: 'Business Processes', value: PILL_VIEWS.BUSINESS_PROCESS },
+  { title: 'Integration View', value: PILL_VIEWS.INTEGRATION_VIEW },
+  { title: 'Application Module View', value: PILL_VIEWS.APPLICATION_MODULE },
+  { title: 'Erp Platform View', value: PILL_VIEWS.ERP_PLATFORM_VIEW },
+];
+
+const PillsRow: React.FC<PillRowProps> = ({ pills, onSelect }) => {
+  return (
+    <Box
+      display="flex"
+      mb={4}
+      alignSelf="end"
+      alignItems="center"
+      justifyContent="space-between"
+      p={2}
+    >
+      <HStack spacing={2}>
+        {pills.map((pill, index) => (
+          <Button
+            key={index}
+            variant="outline"
+            size="sm"
+            borderRadius="12px"
+            colorScheme="gray"
+            border="2px #ccc solid"
+            _hover={{ bg: 'gray.100' }}
+            onClick={() => onSelect(pill.value)}
+          >
+            {pill?.title}
+          </Button>
+        ))}
+      </HStack>
+
+      <IconButton
+        aria-label="Refresh"
+        icon={<FiRefreshCw />}
+        variant="ghost"
+        colorScheme="gray"
+        size="sm"
+      />
+    </Box>
+  );
+};
 
 export default function Chat() {
   const router = useRouter(); // Initialize the useRouter hook to access URL params
-  const [chat_id, setChatId] = useState<string>();
   // Input States
+  const [chat_id, setChatId] = useState<string>();
+  const [selectedPill, setSelectedPill] = useState<PILL_VIEWS>();
   const [inputOnSubmit, setInputOnSubmit] = useState<string>('');
   const [inputCode, setInputCode] = useState<string>('');
   // Response message
@@ -166,19 +228,32 @@ export default function Chat() {
       );
       return;
     }
-    const selectedFileIds = JSON.parse(
-      localStorage.getItem('selectedFileIds') || '[]',
-    );
 
     const body: StartChatRequest = {
       user_input: inputCode,
+      chat_id: chat_id,
       id: chat_id,
       user_id: user_id,
     };
-    const data = await chatClient.startConversation(body);
-
-    setOutputData(data);
-    setChatId(data.chat_id);
+    try {
+      const data = await chatClient.startConversation(body, {
+        headers: {
+          user_id: user_id,
+        },
+      });
+      setOutputData(data);
+      setChatId(data?.id);
+    } catch (error) {
+      console.log(error);
+      toast({
+        title: 'Something went wrong. Please try again later.',
+        status: 'error',
+        duration: 2000,
+        isClosable: true,
+        position: 'top-right',
+        variant: 'subtle',
+      });
+    }
     setLoading(false);
   };
 
@@ -199,6 +274,14 @@ export default function Chat() {
       document.removeEventListener('keydown', handleKeyDown);
     };
   }, [inputCode, handleTranslate]);
+
+  const handlePillSelect = (value: PILL_VIEWS) => {
+    setSelectedPill(value);
+  };
+
+  console.log('CHAT ID', chat_id);
+  console.log('USER ID', user_id);
+  console.log('CHAT DATA', outputData);
 
   return (
     <Flex
@@ -256,78 +339,85 @@ export default function Chat() {
           overflowY="auto"
         >
           <Flex w="100%" paddingX={{ base: '8px', lg: '20px' }}>
-            <MessageBoxChat output={outputData} />
+            <MessageBoxChat selectedPill={selectedPill} output={outputData} />
           </Flex>
         </Flex>
 
-        <Flex
-          w={{ base: '100%', md: '80%', xl: '62%' }} // Responsive width
-          justifySelf="flex-end"
-          zIndex="1000"
-          pb={{ base: 4, md: 6, xl: 10 }} // Responsive padding bottom
-          borderRadius={{ base: '0px', md: 10 }} // No radius on mobile, but radius on larger screens
-          flexDirection={{ base: 'column', md: 'row' }}
-        >
-          <Input
-            minH={{ base: '48px', md: '56px' }}
-            h="100%"
-            border="1px solid"
-            borderColor={borderColor}
-            bg="white"
-            borderRadius="45px"
-            p={{ base: '10px 15px', md: '15px 20px' }} // Smaller padding on mobile
-            fontSize={{ base: 'xs', md: 'sm' }} // Smaller font size on mobile
-            fontWeight="500"
-            _focus={{ borderColor: 'none' }}
-            color={inputColor}
-            _placeholder={placeholderColor}
-            placeholder="Type your message here..."
-            onChange={handleChange}
-            value={inputCode}
-          />
-
-          <Flex alignItems="center">
-            <Button
-              as="label"
-              htmlFor="file-upload"
-              variant="ghost"
-              me="10px"
-              borderRadius="45px"
-              _hover={{
-                bg: 'white',
-              }}
-              h="54px"
-              w="54px"
-              minW="54px"
-              display="flex"
-              alignItems="center"
-              justifyContent="center"
-            >
-              <Icon as={AttachmentIcon} w={6} h={6} color="gray.800" />
-              <Input
-                id="file-upload"
-                type="file"
-                display="none"
-                onChange={handleFileUpload} // handle file input change
-              />
-            </Button>
-
-            <Button
+        <Flex flexDirection="column" w="100%">
+          {!!outputData && (
+            <PillsRow pills={pillsList} onSelect={handlePillSelect} />
+          )}
+          <Flex
+            justifySelf="flex-end"
+            alignSelf="center"
+            zIndex="1000"
+            pb={{ base: 4, md: 6 }} // Responsive padding bottom
+            borderRadius={{ base: '0px', md: 10 }} // No radius on mobile, but radius on larger screens
+            flexDirection={{ base: 'column', md: 'row' }}
+            w={{ base: '100%', md: '80%', xl: '62%' }}
+          >
+            <Input
               flex="1"
-              textColor={'white'}
-              py={{ base: '12px', md: '20px' }} // Reduced padding for mobile
-              px={{ base: '8px', md: '16px' }} // Reduced horizontal padding for mobile
-              fontSize={{ base: 'xs', md: 'sm' }} // Smaller font size on mobile
+              minH={{ base: '48px', md: '56px' }}
+              h="100%"
+              border="1px solid"
+              borderColor={borderColor}
+              bg="white"
               borderRadius="45px"
-              w={{ base: '100px', md: '160px', xl: '210px' }} // Reduced width on mobile
-              h={{ base: '44px', md: '54px' }} // Reduced height on mobile
-              onClick={handleTranslate}
-              isLoading={loading ? true : false}
-              bg={'#1c9cf4'}
-              _hover={{ bg: '#0b73fc' }}
-            >
-              Submit
-            </Button>
+              p={{ base: '10px 15px', md: '15px 20px' }} // Smaller padding on mobile
+              fontSize={{ base: 'xs', md: 'sm' }} // Smaller font size on mobile
+              fontWeight="500"
+              _focus={{ borderColor: 'none' }}
+              color={inputColor}
+              _placeholder={placeholderColor}
+              placeholder="Type your message here..."
+              onChange={handleChange}
+              value={inputCode}
+            />
+
+            <Flex alignItems="center">
+              <Button
+                as="label"
+                htmlFor="file-upload"
+                variant="ghost"
+                me="10px"
+                borderRadius="45px"
+                _hover={{
+                  bg: 'white',
+                }}
+                h="54px"
+                w="54px"
+                minW="54px"
+                display="flex"
+                alignItems="center"
+                justifyContent="center"
+              >
+                <Icon as={AttachmentIcon} w={6} h={6} color="gray.800" />
+                <Input
+                  id="file-upload"
+                  type="file"
+                  display="none"
+                  onChange={handleFileUpload} // handle file input change
+                />
+              </Button>
+
+              <Button
+                flex="1"
+                textColor={'white'}
+                py={{ base: '12px', md: '20px' }} // Reduced padding for mobile
+                px={{ base: '8px', md: '16px' }} // Reduced horizontal padding for mobile
+                fontSize={{ base: 'xs', md: 'sm' }} // Smaller font size on mobile
+                borderRadius="45px"
+                w={{ base: '100px', md: '160px', xl: '210px' }} // Reduced width on mobile
+                h={{ base: '44px', md: '54px' }} // Reduced height on mobile
+                onClick={handleTranslate}
+                isLoading={loading ? true : false}
+                bg={'#1c9cf4'}
+                _hover={{ bg: '#0b73fc' }}
+              >
+                Submit
+              </Button>
+            </Flex>
           </Flex>
         </Flex>
       </Flex>

@@ -45,69 +45,16 @@ import { title } from 'process';
 import {
   ChatViewData,
   StartConversationResponse,
+  ViewDataProcessField,
   ViewDataResponse,
 } from '@/types/Response/Chat';
 import dataHelper from '@/helpers/DataHelper';
+import { PILL_VIEWS } from '@/types/types';
 
 interface MessageBoxProps {
   output?: StartConversationResponse;
+  selectedPill?: PILL_VIEWS;
 }
-
-type Pill = {
-  title: string;
-  value: number;
-};
-
-interface PillRowProps {
-  pills: Pill[];
-  onSelect: (value: number) => void;
-}
-
-const pillsList = [
-  { title: 'Mizkan Holdings Co., Ltd.', value: 1 },
-  { title: 'Data Migration Scope.', value: 2 },
-  { title: 'Business Processes', value: 3 },
-  { title: 'Integration View', value: 4 },
-  { title: 'Application Module View', value: 5 },
-  { title: 'Erp Platform View', value: 6 },
-];
-
-const PillsRow: React.FC<PillRowProps> = ({ pills, onSelect }) => {
-  return (
-    <Box
-      display="flex"
-      mb={4}
-      alignItems="center"
-      justifyContent="space-between"
-      p={2}
-    >
-      <HStack spacing={2}>
-        {pills.map((pill, index) => (
-          <Button
-            key={index}
-            variant="outline"
-            size="sm"
-            borderRadius="12px"
-            colorScheme="gray"
-            border="2px #ccc solid"
-            _hover={{ bg: 'gray.100' }}
-            onClick={() => onSelect(pill.value)}
-          >
-            {pill?.title}
-          </Button>
-        ))}
-      </HStack>
-
-      <IconButton
-        aria-label="Refresh"
-        icon={<FiRefreshCw />}
-        variant="ghost"
-        colorScheme="gray"
-        size="sm"
-      />
-    </Box>
-  );
-};
 
 interface CompanyInfoProps {
   viewData: ViewDataResponse;
@@ -181,87 +128,76 @@ interface MigrationSection {
   items: MigrationItem[];
 }
 
-const StyledContainer = styled(Box)`
-  border-radius: 8px;
-`;
+// Component with updated logic
+interface DataMigrationViewProps {
+  viewData: ViewDataResponse;
+  onSectionChange?: (updatedSections: ViewDataProcessField[]) => void;
+}
 
-const DataMigrationView: React.FC = () => {
-  const [sections, setSections] =
-    useState<MigrationSection[]>(staticMigrationsData);
+const DataMigrationView: React.FC<DataMigrationViewProps> = ({
+  viewData,
+  onSectionChange,
+}) => {
+  const [sections, setSections] = useState<ViewDataResponse['fields']>(
+    viewData.fields ?? [],
+  );
 
-  const handleCheckboxChange = (sectionIndex: number, itemIndex: number) => {
-    const newSections = [...sections];
-    newSections[sectionIndex].items[itemIndex].isChecked =
-      !newSections[sectionIndex].items[itemIndex].isChecked;
+  const handleCheckboxChange = (sectionIndex: number) => {
+    const newSections = sections ? [...sections] : [];
+    newSections[sectionIndex].isChecked = `${
+      newSections[sectionIndex].isChecked === 'true' ? 'false' : 'true'
+    }`;
     setSections(newSections);
+    onSectionChange && onSectionChange(newSections);
   };
 
-  const handleInputChange = (
-    sectionIndex: number,
-    itemIndex: number,
-    value: string,
-  ) => {
-    const newSections = [...sections];
-    newSections[sectionIndex].items[itemIndex].value = value;
+  const handleInputChange = (sectionIndex: number, value: string) => {
+    const newSections = sections ? [...sections] : [];
+    newSections[sectionIndex].value = value;
     setSections(newSections);
+    onSectionChange && onSectionChange(newSections);
   };
 
   return (
-    <StyledContainer overflowY="auto">
-      <Container maxW="container.xl">
-        <Heading size="md" mb={4}>
-          Dynamics 365 - Data Migration
-        </Heading>
-        <Text fontSize="sm" color="gray.600" mb={6}>
-          The data migration process is critical to ensure that all necessary
-          data from existing systems is accurately transferred to Dynamics 365,
-          enabling seamless business operations post-implementation. Below are
-          the types of data migration that may be needed:
-        </Text>
+    <Container maxW="container.xl" overflowY="auto" py={6}>
+      <Heading size="md" mb={4}>
+        {viewData?.title}
+      </Heading>
+      <Text fontSize="sm" color="gray.600" mb={6}>
+        {viewData?.description}
+      </Text>
 
-        <HStack align="start" spacing={8}>
-          {sections.map((section, sectionIndex) => (
-            <Box key={section.title} flex={1}>
-              <Heading size="sm" mb={4}>
-                {section.title}
-              </Heading>
-              <VStack align="stretch" spacing={4}>
-                {section.items.map((item, itemIndex) => (
-                  <HStack key={item.id} spacing={4}>
-                    <Checkbox
-                      isChecked={item.isChecked}
-                      onChange={() =>
-                        handleCheckboxChange(sectionIndex, itemIndex)
-                      }
-                    >
-                      <Text fontSize="16px" whiteSpace="nowrap">
-                        {item.label}
-                      </Text>
-                    </Checkbox>
-                    <Input
-                      borderRadius="8px"
-                      border="1px #ccc solid"
-                      background="white"
-                      size="sm"
-                      value={item.value}
-                      onChange={(e) =>
-                        handleInputChange(
-                          sectionIndex,
-                          itemIndex,
-                          e.target.value,
-                        )
-                      }
-                      isDisabled={!item.isChecked}
-                      placeholder="Enter value..."
-                    />
-                  </HStack>
-                ))}
-              </VStack>
-            </Box>
-          ))}
-        </HStack>
-      </Container>
-    </StyledContainer>
+      <SimpleGrid columns={[1, 2]} spacing={8}>
+        {sections?.map((section, sectionIndex) => (
+          <Box key={section.id} flex={1}>
+            <VStack align="stretch" spacing={4}>
+              <HStack key={section.id} spacing={4}>
+                <Checkbox
+                  isChecked={section.isChecked === 'true'}
+                  onChange={() => handleCheckboxChange(sectionIndex)}
+                >
+                  <Text fontSize="16px" whiteSpace="nowrap">
+                    {section.label}
+                  </Text>
+                </Checkbox>
+                <Input
+                  borderRadius="8px"
+                  border="1px #ccc solid"
+                  background="white"
+                  size="sm"
+                  value={section.value || ''}
+                  onChange={(e) =>
+                    handleInputChange(sectionIndex, e.target.value)
+                  }
+                  isDisabled={section.isChecked === 'false'} // Disabled if checkbox is not checked
+                  placeholder={section.inputPlaceHolders || 'Enter value...'}
+                />
+              </HStack>
+            </VStack>
+          </Box>
+        ))}
+      </SimpleGrid>
+    </Container>
   );
 };
 
@@ -289,7 +225,7 @@ const BusinessProcessesView: React.FC<BusinessProcessesViewProps> = ({
   };
 
   return (
-    <Box overflowY="auto" p={4}>
+    <Container maxW="container.xl" overflowY="auto" py={6}>
       <Heading as="h3" size="md" mb={2}>
         {viewData.title}
       </Heading>
@@ -312,7 +248,75 @@ const BusinessProcessesView: React.FC<BusinessProcessesViewProps> = ({
           </Checkbox>
         ))}
       </SimpleGrid>
-    </Box>
+    </Container>
+  );
+};
+
+interface ModulesViewProps {
+  viewData: ViewDataResponse;
+}
+
+const ModulesView: React.FC<ModulesViewProps> = ({ viewData }) => {
+  // Group fields by their `group` property
+  const groupedFields = viewData.fields?.reduce((acc, field) => {
+    if (field.group) {
+      (acc[field.group] = acc[field.group] || []).push(field);
+    }
+    return acc;
+  }, {} as Record<string, ViewDataProcessField[]>);
+
+  // Initialize selected processes based on `isChecked` value
+  const [selectedProcesses, setSelectedProcesses] = useState<string[]>(
+    viewData.fields
+      ?.filter((field) => field.isChecked === 'true')
+      .map((field) => field.label) ?? [],
+  );
+
+  // Function to handle checkbox selection
+  const handleCheckboxChange = (label: string) => {
+    setSelectedProcesses((prevSelected) =>
+      prevSelected.includes(label)
+        ? prevSelected.filter((process) => process !== label)
+        : [...prevSelected, label],
+    );
+  };
+
+  return (
+    <Container maxW="container.xl" overflowY="auto" py={6}>
+      <Heading as="h3" size="md" mb={2}>
+        {viewData.title}
+      </Heading>
+      <Text>{viewData.description}</Text>
+      <Divider mb={4} />
+
+      <SimpleGrid columns={{ base: 1, md: 2 }} spacing={2}>
+        {groupedFields &&
+          Object.entries(groupedFields).map(([groupName, fields]) => (
+            <Box key={groupName} mb={6}>
+              <Heading as="h4" size="sm" mb={2}>
+                {groupName}
+              </Heading>
+              <Flex flexDirection="column" alignItems="start" ml={2}>
+                {fields.map((field) => (
+                  <Checkbox
+                    key={field.id}
+                    isChecked={selectedProcesses.includes(field.label)}
+                    onChange={() => handleCheckboxChange(field.label)}
+                    mb={2}
+                  >
+                    <Text fontWeight="bold" display="inline">
+                      {field.label}
+                    </Text>
+                    <Text display="inline" color="gray.600" ml={2}>
+                      {field.description}
+                    </Text>
+                  </Checkbox>
+                ))}
+              </Flex>
+            </Box>
+          ))}
+      </SimpleGrid>
+    </Container>
   );
 };
 
@@ -327,31 +331,33 @@ const DocumentCreationView: React.FC<DocumentCreationViewProps> = ({
   const buttonSize = useBreakpointValue({ base: 'md', md: 'lg' });
 
   return (
-    <Flex flexDirection="column" alignItems="start">
-      <Heading as="h3" size="lg" mb={2} textAlign="left">
-        Document Creation
-      </Heading>
-      <Text mb={4} textAlign="left" color="gray.600">
-        Please download and review the document below.
-      </Text>
-      <Divider mb={4} />
-      <VStack spacing={4}>
-        <Button
-          key={viewData?.id}
-          as="a"
-          href={viewData?.url}
-          target="_blank"
-          rel="noopener noreferrer"
-          leftIcon={<DownloadIcon />}
-          colorScheme="blue"
-          background="blue.400"
-          size={buttonSize}
-          width={{ base: '100%', md: 'auto' }}
-        >
-          Download Document
-        </Button>
-      </VStack>
-    </Flex>
+    <Container maxW="container.xl" overflowY="auto" py={6}>
+      <Flex flexDirection="column" alignItems="start">
+        <Heading as="h3" size="lg" mb={2} textAlign="left">
+          Document Creation
+        </Heading>
+        <Text mb={4} textAlign="left" color="gray.600">
+          Please download and review the document below.
+        </Text>
+        <Divider mb={4} />
+        <VStack spacing={4}>
+          <Button
+            key={viewData?.id}
+            as="a"
+            href={viewData?.url}
+            target="_blank"
+            rel="noopener noreferrer"
+            leftIcon={<DownloadIcon />}
+            colorScheme="blue"
+            background="blue.400"
+            size={buttonSize}
+            width={{ base: '100%', md: 'auto' }}
+          >
+            Download Document
+          </Button>
+        </VStack>
+      </Flex>
+    </Container>
   );
 };
 
@@ -399,115 +405,6 @@ const MarkdownView: React.FC<MarkdownView> = ({ content }) => {
         {content}
       </ReactMarkdown>
     </Box>
-  );
-};
-
-const IntegrationView: React.FC = () => {
-  const [sections, setSections] = useState(staticMigrationsData);
-
-  const handleCheckboxChange = (sectionIndex: number, itemIndex: number) => {
-    const newSections = [...sections];
-    newSections[sectionIndex].items[itemIndex].isChecked =
-      !newSections[sectionIndex].items[itemIndex].isChecked;
-    setSections(newSections);
-  };
-
-  const handleInputChange = (
-    sectionIndex: number,
-    itemIndex: number,
-    value: string,
-  ) => {
-    const newSections = [...sections];
-    newSections[sectionIndex].items[itemIndex].value = value;
-    setSections(newSections);
-  };
-
-  return (
-    <Container maxW="container.xl" overflowY="auto">
-      <Heading size="md" mb={4}>
-        Dynamics 365 - Integrations
-      </Heading>
-      <Text fontSize="sm" color="gray.600" mb={6}>
-        The data migration process is critical to ensure that all necessary data
-        from existing systems is accurately transferred to Dynamics 365,
-        enabling seamless business operations post-implementation. Below are the
-        types of data migration that may be needed:
-      </Text>
-
-      <HStack align="start" spacing={8}>
-        {sections.map((section, sectionIndex) => (
-          <Box
-            key={section.title}
-            flex={1}
-            borderWidth="1px"
-            borderRadius="8px"
-            boxShadow="md"
-            p={4}
-            bg="white"
-          >
-            <Checkbox
-              isChecked={section.items.every((item) => item.isChecked)}
-              onChange={() =>
-                setSections((prevSections) => {
-                  const newSections = [...prevSections];
-                  const allChecked = newSections[sectionIndex].items.every(
-                    (item) => item.isChecked,
-                  );
-                  newSections[sectionIndex].items.forEach(
-                    (item) => (item.isChecked = !allChecked),
-                  );
-                  return newSections;
-                })
-              }
-              fontWeight="bold"
-              mb={4}
-            >
-              {section.title}
-            </Checkbox>
-
-            <VStack align="stretch" spacing={4}>
-              {section.items.map((item, itemIndex) => (
-                <HStack key={item.id} spacing={4}>
-                  <Checkbox
-                    isChecked={item.isChecked}
-                    onChange={() =>
-                      handleCheckboxChange(sectionIndex, itemIndex)
-                    }
-                  >
-                    <Text fontSize="16px" whiteSpace="nowrap">
-                      {item.label}
-                    </Text>
-                  </Checkbox>
-                  <Input
-                    borderRadius="8px"
-                    border="1px #ccc solid"
-                    background="white"
-                    size="sm"
-                    value={item.value}
-                    onChange={(e) =>
-                      handleInputChange(sectionIndex, itemIndex, e.target.value)
-                    }
-                    isDisabled={!item.isChecked}
-                    placeholder="Enter value..."
-                  />
-                </HStack>
-              ))}
-            </VStack>
-
-            <IconButton
-              icon={<AddIcon />}
-              aria-label="Add item"
-              mt={4}
-              size="sm"
-              borderRadius="50%"
-              bg="gray.200"
-              _hover={{ bg: 'gray.300' }}
-              // Add functionality to add a new item if needed
-            />
-          </Box>
-        ))}
-      </HStack>
-    </Container>
   );
 };
 
@@ -590,60 +487,56 @@ const ApplicationModuleView: React.FC = () => {
   );
 };
 
-const ErpPlatformView: React.FC = () => {
-  const [sections, setSections] = useState(erpPlatformData);
+type ErpPlatformViewProps = {
+  viewData: ViewDataResponse;
+};
 
-  const handleCheckboxChange = (sectionIndex: number) => {
-    const newSections = [...sections];
-    newSections[sectionIndex].isChecked = !newSections[sectionIndex].isChecked;
+const ErpPlatformView: React.FC<ErpPlatformViewProps> = ({ viewData }) => {
+  const [sections, setSections] = useState<ViewDataResponse['fields']>(
+    viewData?.fields ?? [],
+  );
+
+  const handleCheckboxChange = (fieldIndex: number) => {
+    const newSections = sections ? [...sections] : [];
+    newSections[fieldIndex].isChecked = `${
+      newSections[fieldIndex].isChecked === 'true' ? 'false' : 'true'
+    }`;
     setSections(newSections);
   };
 
   return (
     <Container maxW="container.xl" overflowY="auto" py={6}>
       <Heading size="md" mb={4}>
-        Mizkan American Inc. - ERP Platfrom
+        {viewData?.title}
       </Heading>
       <Text fontSize="sm" color="gray.600" mb={6}>
-        These modules are designed to optimize financial operations, enhance
-        supply chain efficiency, and ensure compliance with industry
-        regulations:
+        {viewData?.description}
       </Text>
 
-      <HStack align="start" spacing={8}>
-        {sections.map((section, sectionIndex) => (
-          <Box
-            key={section.title}
-            flex={1}
-            borderWidth="1px"
-            borderRadius="8px"
-            boxShadow="sm"
-            p={4}
-            bg="gray.50"
-          >
+      <SimpleGrid columns={{ base: 1, md: 2 }} spacing={4}>
+        {viewData.fields?.map((field, fieldIndex) => (
+          <Box key={field.id} mb={3}>
             <Checkbox
-              isChecked={section.isChecked}
-              onChange={() => handleCheckboxChange(sectionIndex)}
+              isChecked={field.isChecked === 'true'}
+              onChange={() => handleCheckboxChange(fieldIndex)}
               fontWeight="bold"
-              mb={2}
             >
-              {section.title}
+              {field.label}
             </Checkbox>
             <Text fontSize="sm" color="gray.600" pl="6">
-              {section.description}
+              {field.description}
             </Text>
           </Box>
         ))}
-      </HStack>
+      </SimpleGrid>
     </Container>
   );
 };
 
-export default function MessageBox({ output }: MessageBoxProps) {
+export default function MessageBox({ output, selectedPill }: MessageBoxProps) {
   const toast = useToast();
   const textColor = useColorModeValue('navy.700', 'white');
-  const [viewData, setViewData] = useState<ChatViewData>();
-  const [selectedPill, setSelectedPill] = useState<number>();
+  const [viewData, setViewData] = useState<ViewDataResponse[]>();
   const bottomRef = useRef<HTMLDivElement | null>(null); // Reference to the bottom of the chat
   const [isCitationModalOpen, setIsCitationModalOpen] = useState(false); // Modal state
   const [selectedCitation, setSelectedCitation] = useState<string | null>(null); // Selected citation
@@ -651,12 +544,16 @@ export default function MessageBox({ output }: MessageBoxProps) {
 
   useEffect(() => {
     if (output?.response) {
-      try {
-        const data = JSON.parse(output?.response);
-        setViewData(data);
-      } catch (error) {
-        setViewData(undefined);
-        console.log('ERROR => Unable to parse chat response json: ', error);
+      if (typeof output?.response === 'string') {
+        try {
+          const data = JSON.parse(output?.response);
+          setViewData(data);
+        } catch (error) {
+          setViewData(undefined);
+          console.log('ERROR => Unable to parse chat response json: ', error);
+        }
+      } else {
+        setViewData(output?.response);
       }
     }
   }, [output?.response]);
@@ -678,34 +575,26 @@ export default function MessageBox({ output }: MessageBoxProps) {
     setIsCitationModalOpen(false); // Close the modal
   };
 
-  const handlePillSelect = (value: number) => {
-    setSelectedPill(value);
-  };
-
   const ChatDynamicView = useMemo(() => {
-    switch (viewData?.response?.[0]?.viewType) {
+    switch (viewData?.[0]?.viewType) {
       case 'companyinfo':
-        return <CompanyInfoCard viewData={viewData?.response?.[0]} key={1} />;
-      // case 2:
-      //   return <DataMigrationView key={2} />;
-      case 'checkbox':
-        return (
-          <BusinessProcessesView viewData={viewData?.response?.[0]} key={3} />
-        );
+        return <CompanyInfoCard viewData={viewData?.[0]} key={1} />;
+      case 'datamigration':
+        return <DataMigrationView viewData={viewData?.[0]} />;
+      case 'businessprocesses':
+        return <BusinessProcessesView viewData={viewData?.[0]} key={3} />;
       case 'documentcreation':
-        return (
-          <DocumentCreationView viewData={viewData?.response?.[0]} key={4} />
-        );
-      // case 4:
-      //   return <IntegrationView key={4} />;
-      // case 5:
-      //   return <ApplicationModuleView key={5} />;
-      // case 6:
-      //   return <ErpPlatformView key={6} />;
+        return <DocumentCreationView viewData={viewData?.[0]} key={4} />;
+      case 'modules':
+        return <ModulesView viewData={viewData?.[0]} key={5} />;
+      case 'modules':
+        return <ApplicationModuleView key={6} />;
+      case 'erp':
+        return <ErpPlatformView viewData={viewData?.[0]} />;
       default:
         return <MarkdownView content={staticCompanyMarkdownText} key={1} />;
     }
-  }, [viewData?.response]);
+  }, [viewData]);
 
   const [currentPage, setCurrentPage] = useState(1);
   const citationsPerPage = 1; // Adjust the number of citations per page
@@ -735,7 +624,7 @@ export default function MessageBox({ output }: MessageBoxProps) {
           border="3px solid #ffffff"
           overflowY="auto" // Allow scrolling if the content exceeds the container height
         >
-          {viewData?.response?.[0]?.viewType ? (
+          {viewData?.[0]?.viewType !== 'simplechat' ? (
             <Flex direction="column">
               <div
                 style={{
@@ -895,7 +784,7 @@ export default function MessageBox({ output }: MessageBoxProps) {
                         className="font-medium"
                         components={{
                           p: ({ node, ...props }) => (
-                            <p style={{ marginBottom: '1em' }} {...props} /> // Adds space between paragraph and next element
+                            <p {...props} /> // Adds space between paragraph and next element
                           ),
                           ul: ({ node, ...props }) => (
                             <ul
@@ -928,7 +817,7 @@ export default function MessageBox({ output }: MessageBoxProps) {
                           ),
                         }}
                       >
-                        {output?.response ?? ''}
+                        {output?.response?.[0]?.content ?? ''}
                       </ReactMarkdown>
                     </div>
                   </div>
@@ -938,7 +827,6 @@ export default function MessageBox({ output }: MessageBoxProps) {
             </Box>
           )}
         </Card>
-        <PillsRow pills={pillsList} onSelect={handlePillSelect} />
       </Flex>
       <Modal
         isOpen={isCitationModalOpen}

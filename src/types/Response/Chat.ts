@@ -1,8 +1,8 @@
 export interface StartConversationResponse {
   input?: string;
-  chat_id?: string;
+  id?: string;
   user_id?: string;
-  response?: string;
+  response?: ViewDataResponse[];
 }
 
 export interface ChatViewData {
@@ -30,7 +30,10 @@ export interface ViewDataResponse {
 export interface ViewDataProcessField {
   type: string;
   label: string;
-  description: string;
+  description?: string;
+  value?: string;
   id: string;
-  isChecked: string;
+  isChecked: string; // Changed to boolean
+  inputPlaceHolders?: string; // Added this property
+  group?: string; // Added this property
 }
