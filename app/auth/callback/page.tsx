@@ -40,6 +40,7 @@ const CallbackPage = () => {
     try {
       // Example API call to send the code and get userId
       localStorage.setItem('user_id', code); // Store the userId in localStorage
+      router.push('/chat');
       // const response = await fetch('/api/getUserId', {
       //   method: 'POST',
       //   headers: {
@@ -58,7 +59,6 @@ const CallbackPage = () => {
       //   // Ensure userId is a string before storing
       //   localStorage.setItem('user_id', userId); // Store the userId in localStorage
       //   // Redirect the user to the main chat page
-      //   router.push('/');
       // } else {
       //   console.error('Error fetching userId');
       // }
