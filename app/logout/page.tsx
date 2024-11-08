@@ -13,7 +13,7 @@ export default function Logout() {
         const scope = encodeURIComponent('openid profile offline_access https://graph.microsoft.com/.default'); // Example scope
         const responseType = 'code'; // Authorization code flow
         const state = encodeURIComponent('abc123'); // Optional but recommended for CSRF protection
-        const prompt = 'consent'; // Optional, forces the user to consent every time
+        const prompt = 'login'; // Optional, forces the user to consent every time
 
         // Construct the full URL with the necessary query parameters
         const urlWithParams = `${authorizeUrl}?client_id=${clientId}` +
