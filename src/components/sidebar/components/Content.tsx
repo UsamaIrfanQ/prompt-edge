@@ -142,7 +142,7 @@ function SidebarContent(props: SidebarContent) {
           Customers
         </Button> */}
         <SidebarTabs index={tabIndex} onChange={handleTabsChange} tabs={[
-          { icon: <FaHome style={{ width: 50, height: 50 }} />, label: 'Home', to: '/' },
+          { icon: <FaHome style={{ width: 50, height: 50 }} />, label: 'Home', to: '/chat' },
           { icon: <RiContactsBookLine style={{ width: 50, height: 50 }} />, label: 'Prospects', to: "/prospects" },
           { icon: <CiViewList style={{ width: 50, height: 50 }} />, label: 'Projects' },
           { icon: <GrNodes style={{ width: 50, height: 50 }} />, label: 'Customers' },
